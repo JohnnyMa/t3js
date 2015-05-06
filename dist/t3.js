@@ -14,6 +14,10 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
+// Start wrapper
+// We use this to make sure we don't assign globals unless we actually want to
+(function(window) {
+
 /**
  * @fileoverview Base namespaces for Box JavaScript.
  * @author Box
@@ -141,27 +145,6 @@ Box.EventTarget = (function() {
 
 	return EventTarget;
 
-}());
-
-/**
- * @fileoverview Definition of a custom event type. This is used as a utility
- * throughout the framework whenever custom events are used. It is intended to
- * be inherited from, either through the prototype or via mixin.
- * @author Box
- */
-
-Box.Events = (function(){
-    'use strict';
-
-    return {
-        on: function(element, type, listener) {
-            $(element).on(type, listener);
-        },
-
-        off: function(element, type, listener) {
-            $(element).off(type, listener);
-        }
-    };
 }());
 
 /**
@@ -651,7 +634,8 @@ Box.Application = (function() {
 			return true;
 		}
 
-        Box.Events.on(element, type, eventHandler);
+		// @NOTE(nzakas): Using jQuery for event normalization
+		$(element).on(type, eventHandler);
 
 		return eventHandler;
 	}
@@ -703,7 +687,8 @@ Box.Application = (function() {
 	function unbindEventListeners(instanceData) {
 		for (var type in instanceData.eventHandlers) {
 			if (instanceData.eventHandlers.hasOwnProperty(type)) {
-                Box.Events.off(instanceData.element, type, instanceData.eventHandlers[type]);
+				// @NOTE(nzakas): Using jQuery for event normalization
+				$(instanceData.element).off(type, instanceData.eventHandlers[type]);
 			}
 		}
 
@@ -1156,4 +1141,23 @@ Box.Application = (function() {
 	});
 
 }());
+
+	// CommonJS/npm, we want to export Box instead of assigning to global Window
+	if (typeof module === 'object' && typeof module.exports === 'object') {
+		module.exports = Box;
+	} else {
+		// Make sure not to override Box namespace
+		window.Box = window.Box || {};
+
+		// Copy all properties onto namespace (ES3 safe for loop)
+		for (var key in Box) {
+			if (Box.hasOwnProperty(key)) {
+				window.Box[key] = Box[key];
+			}
+		}
+	}
+
+// Potentially window is not defined yet, so bind to 'this' instead
+}(typeof window !== 'undefined' ? window : this));
+// End Wrapper
 
