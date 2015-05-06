@@ -34,7 +34,7 @@ module.exports = function(config) {
 			'node_modules/jquery/dist/jquery.js',
 			'tests/utils/common-setup.js',
 			'lib/box.js',
-            'lib/events-jquery.js',
+			'lib/events-jquery.js',
 			'lib/context.js',
 			'lib/event-target.js',
 			'lib/application.js',
