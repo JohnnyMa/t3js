@@ -464,111 +464,119 @@ describe('Box.Application', function() {
 
 	describe('on[event]()', function() {
 
-		beforeEach(function() {
-			Box.Application.init();
+		leche.withData({
+			jquery: [Box.JQueryEvents],
+			native: [Box.NativeEvents]
+		}, function(events){
 
-			// add after init() to ensure we won't have errors due to missing
-			// module definitions
-			testModule = $('<div data-module="test"><button id="module-target" data-type="target"></button></div>')[0];
-			nestedModule = $('<div data-module="parent"><div data-module="child"></div></div>')[0];
-			$('#mocha-fixture').append(testModule, nestedModule);
-			testTarget = document.getElementById('module-target');
-		});
+			beforeEach(function() {
+				Box.Events = events;
+				Box.Application.init();
 
-		it('should be called when an event occurs inside of a started module', function() {
-			Box.Application.addModule('test', sandbox.stub().returns({
-				onclick: sandbox.mock()
-			}));
-
-			Box.Application.start(testModule);
-
-			testTarget.click();
-		});
-
-		// it('should still be called with a null element when an event occurs on a recently detached element', function() {
-		// 	// Background on this edge case:
-		// 	//  1. event handlers like mouseout may sometimes detach nodes from the DOM
-		// 	//  2. event handlers like mouseleave will still fire on the detached node
-		// 	// Without checking the existence of a parentNode and returning null, we would throw errors
-		// 	Box.Application.addModule('test', sandbox.stub().returns({
-		// 		onclick: sandbox.mock().withArgs(sinon.match.any, null)
-		// 	}));
-
-		// 	Box.Application.start(testModule);
-
-		// 	testTarget.click();
-		// });
-
-		it('should be called on behaviors in correct order when defined', function() {
-
-			var moduleClickSpy = sandbox.spy(),
-				behaviorClickSpy = sandbox.spy(),
-				behavior2ClickSpy = sandbox.spy();
-
-			Box.Application.addModule('test', sandbox.stub().returns({
-				behaviors: ['test-behavior', 'test-behavior2'],
-				onclick: moduleClickSpy
-			}));
-
-			Box.Application.addBehavior('test-behavior', sandbox.stub().returns({
-				onclick: behaviorClickSpy
-			}));
-			Box.Application.addBehavior('test-behavior2', sandbox.stub().returns({
-				onclick: behavior2ClickSpy
-			}));
-
-			Box.Application.start(testModule);
-
-			testTarget.click();
-
-			assert.ok(moduleClickSpy.calledBefore(behaviorClickSpy), 'module called before first behavior');
-			assert.ok(behaviorClickSpy.calledBefore(behavior2ClickSpy), 'first behavior called before second behavior');
-
-		});
-
-		it('should be called with the nearest type element and type when an event occurs inside of a started module', function() {
-
-			Box.Application.addModule('test', sandbox.stub().returns({
-				onclick: sandbox.mock().withArgs(sinon.match.any, $('#module-target')[0], $('#module-target').data('type'))
-			}));
-
-			Box.Application.start(testModule);
-
-			testTarget.click();
-
-		});
-
-		it('should not be passed element when nearest data-type element is outside module scope', function() {
-
-			var moduleWithDataTypeOutside = $('<div data-type="something"><div data-module="child"><button id="inner-btn">button</button></div></div>')[0];
-			$('#mocha-fixture').append(moduleWithDataTypeOutside);
-
-			Box.Application.setGlobalConfig({
-				debug: true
+				// add after init() to ensure we won't have errors due to missing
+				// module definitions
+				testModule = $('<div data-module="test"><button id="module-target" data-type="target"></button></div>')[0];
+				nestedModule = $('<div data-module="parent"><div data-module="child"></div></div>')[0];
+				$('#mocha-fixture').append(testModule, nestedModule);
+				testTarget = document.getElementById('module-target');
 			});
 
-			Box.Application.addModule('child', sandbox.stub().returns({
-				onclick: sandbox.mock().withArgs(sinon.match.any, null, '')
-			}));
+			it('should be called when an event occurs inside of a started module', function() {
+				Box.Application.addModule('test', sandbox.stub().returns({
+					onclick: sandbox.mock()
+				}));
 
-			Box.Application.start(moduleWithDataTypeOutside.firstChild);
+				Box.Application.start(testModule);
 
-			document.getElementById('inner-btn').click();
+				testTarget.click();
+			});
+
+			// it('should still be called with a null element when an event occurs on a recently detached element', function() {
+			// 	// Background on this edge case:
+			// 	//  1. event handlers like mouseout may sometimes detach nodes from the DOM
+			// 	//  2. event handlers like mouseleave will still fire on the detached node
+			// 	// Without checking the existence of a parentNode and returning null, we would throw errors
+			// 	Box.Application.addModule('test', sandbox.stub().returns({
+			// 		onclick: sandbox.mock().withArgs(sinon.match.any, null)
+			// 	}));
+
+			// 	Box.Application.start(testModule);
+
+			// 	testTarget.click();
+			// });
+
+			it('should be called on behaviors in correct order when defined', function() {
+
+				var moduleClickSpy = sandbox.spy(),
+					behaviorClickSpy = sandbox.spy(),
+					behavior2ClickSpy = sandbox.spy();
+
+				Box.Application.addModule('test', sandbox.stub().returns({
+					behaviors: ['test-behavior', 'test-behavior2'],
+					onclick: moduleClickSpy
+				}));
+
+				Box.Application.addBehavior('test-behavior', sandbox.stub().returns({
+					onclick: behaviorClickSpy
+				}));
+				Box.Application.addBehavior('test-behavior2', sandbox.stub().returns({
+					onclick: behavior2ClickSpy
+				}));
+
+				Box.Application.start(testModule);
+
+				testTarget.click();
+
+				assert.ok(moduleClickSpy.calledBefore(behaviorClickSpy), 'module called before first behavior');
+				assert.ok(behaviorClickSpy.calledBefore(behavior2ClickSpy), 'first behavior called before second behavior');
+
+			});
+
+			it('should be called with the nearest type element and type when an event occurs inside of a started module', function() {
+
+				Box.Application.addModule('test', sandbox.stub().returns({
+					onclick: sandbox.mock().withArgs(sinon.match.any, $('#module-target')[0], $('#module-target').data('type'))
+				}));
+
+				Box.Application.start(testModule);
+
+				testTarget.click();
+
+			});
+
+			it('should not be passed element when nearest data-type element is outside module scope', function() {
+
+				var moduleWithDataTypeOutside = $('<div data-type="something"><div data-module="child"><button id="inner-btn">button</button></div></div>')[0];
+				$('#mocha-fixture').append(moduleWithDataTypeOutside);
+
+				Box.Application.setGlobalConfig({
+					debug: true
+				});
+
+				Box.Application.addModule('child', sandbox.stub().returns({
+					onclick: sandbox.mock().withArgs(sinon.match.any, null, '')
+				}));
+
+				Box.Application.start(moduleWithDataTypeOutside.firstChild);
+
+				document.getElementById('inner-btn').click();
+
+			});
+
+			it('should not be called when an event occurs inside of a stopped module', function() {
+
+				Box.Application.addModule('test', sandbox.stub().returns({
+					onclick: sandbox.mock().never()
+				}));
+
+				Box.Application.start(testModule);
+				Box.Application.stop(testModule);
+
+				testTarget.click();
+			});
+
 
 		});
-
-		it('should not be called when an event occurs inside of a stopped module', function() {
-
-			Box.Application.addModule('test', sandbox.stub().returns({
-				onclick: sandbox.mock().never()
-			}));
-
-			Box.Application.start(testModule);
-			Box.Application.stop(testModule);
-
-			testTarget.click();
-		});
-
 
 	});
 
