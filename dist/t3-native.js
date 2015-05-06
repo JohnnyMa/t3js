@@ -1,4 +1,4 @@
-/*! t3 v 1.2.0*/
+/*! t3-native v 1.2.0*/
 /*!
 Copyright 2015 Box, Inc. All rights reserved.
 
@@ -155,11 +155,11 @@ Box.Events = (function(){
 
     return {
         on: function(element, type, listener) {
-            $(element).on(type, listener);
+            element.addEventListener(type, listener);
         },
 
         off: function(element, type, listener) {
-            $(element).off(type, listener);
+            element.removeEventListener(type, listener);
         }
     };
 }());
