@@ -11,6 +11,7 @@ describe('Box.Application', function() {
 
 	var testModule,
 		testModule2,
+		testTarget,
 		nestedModule;
 
 	before(function() {
@@ -468,9 +469,10 @@ describe('Box.Application', function() {
 
 			// add after init() to ensure we won't have errors due to missing
 			// module definitions
-			testModule = $('<div data-module="test"><span id="module-target" data-type="target"></span></div>')[0];
+			testModule = $('<div data-module="test"><button id="module-target" data-type="target"></button></div>')[0];
 			nestedModule = $('<div data-module="parent"><div data-module="child"></div></div>')[0];
 			$('#mocha-fixture').append(testModule, nestedModule);
+			testTarget = document.getElementById('module-target');
 		});
 
 		it('should be called when an event occurs inside of a started module', function() {
@@ -480,28 +482,22 @@ describe('Box.Application', function() {
 
 			Box.Application.start(testModule);
 
-			$('#module-target').trigger({
-				type: 'click',
-				button: 1
-			});
+			testTarget.click();
 		});
 
-		it('should still be called with a null element when an event occurs on a recently detached element', function() {
-			// Background on this edge case:
-			//  1. event handlers like mouseout may sometimes detach nodes from the DOM
-			//  2. event handlers like mouseleave will still fire on the detached node
-			// Without checking the existence of a parentNode and returning null, we would throw errors
-			Box.Application.addModule('test', sandbox.stub().returns({
-				onclick: sandbox.mock().withArgs(sinon.match.any, null)
-			}));
+		// it('should still be called with a null element when an event occurs on a recently detached element', function() {
+		// 	// Background on this edge case:
+		// 	//  1. event handlers like mouseout may sometimes detach nodes from the DOM
+		// 	//  2. event handlers like mouseleave will still fire on the detached node
+		// 	// Without checking the existence of a parentNode and returning null, we would throw errors
+		// 	Box.Application.addModule('test', sandbox.stub().returns({
+		// 		onclick: sandbox.mock().withArgs(sinon.match.any, null)
+		// 	}));
 
-			Box.Application.start(testModule);
+		// 	Box.Application.start(testModule);
 
-			$('#module-target').trigger({
-				type: 'click',
-				target: document.createElement('div') // Detached node
-			});
-		});
+		// 	testTarget.click();
+		// });
 
 		it('should be called on behaviors in correct order when defined', function() {
 
@@ -523,10 +519,7 @@ describe('Box.Application', function() {
 
 			Box.Application.start(testModule);
 
-			$('#module-target').trigger({
-				type: 'click',
-				button: 1
-			});
+			testTarget.click();
 
 			assert.ok(moduleClickSpy.calledBefore(behaviorClickSpy), 'module called before first behavior');
 			assert.ok(behaviorClickSpy.calledBefore(behavior2ClickSpy), 'first behavior called before second behavior');
@@ -541,10 +534,7 @@ describe('Box.Application', function() {
 
 			Box.Application.start(testModule);
 
-			$('#module-target').trigger({
-				type: 'click',
-				button: 1
-			});
+			testTarget.click();
 
 		});
 
@@ -563,10 +553,7 @@ describe('Box.Application', function() {
 
 			Box.Application.start(moduleWithDataTypeOutside.firstChild);
 
-			$('#inner-btn').trigger({
-				type: 'click',
-				button: 1
-			});
+			document.getElementById('inner-btn').click();
 
 		});
 
@@ -579,11 +566,7 @@ describe('Box.Application', function() {
 			Box.Application.start(testModule);
 			Box.Application.stop(testModule);
 
-			$('#module-target').trigger({
-				type: 'click',
-				button: 1
-			});
-
+			testTarget.click();
 		});
 
 
