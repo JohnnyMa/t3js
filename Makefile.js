@@ -230,7 +230,7 @@ target.docs = function() {
 };
 
 
-function distHelper(dist){
+function generateDistFiles(dist){
 	var pkg = require('./package.json'),
 		distFilename = DIST_DIR + dist.name + '.js',
 		minDistFilename = distFilename.replace(/\.js$/, '.min.js'),
@@ -290,7 +290,7 @@ target.dist = function() {
         files: SRC_JQUERY_FILES,
         testingFiles: TESTING_JQUERY_FILES
     }].forEach(function(dist){
-        distHelper(dist);
+        generateDistFiles(dist);
     });
 };
 

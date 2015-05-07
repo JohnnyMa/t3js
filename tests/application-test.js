@@ -257,13 +257,20 @@ describe('Box.Application', function() {
 			$('#mocha-fixture').append(testModule, nestedModule);
 		});
 
-		it('startAll starts a child module when called with nested modules', function() {
-			Box.Application.addModule('parent', sandbox.mock().never());
-			Box.Application.addModule('child', sandbox.mock().withArgs(sinon.match.any).returns({}));
-			Box.Application.startAll(nestedModule);
+		leche.withData({
+			jquery: [Box.JQueryDOM],
+			native: [Box.NativeDOM]
+		}, function(dom){
+			it('startAll starts a child module when called with nested modules', function() {
+				Box.DOM = dom;
 
-			assert.notOk(Box.Application.isStarted(nestedModule), 'Parent module should not be started');
-			assert.ok(Box.Application.isStarted(nestedModule.children[0]), 'Child module should be started');
+				Box.Application.addModule('parent', sandbox.mock().never());
+				Box.Application.addModule('child', sandbox.mock().withArgs(sinon.match.any).returns({}));
+				Box.Application.startAll(nestedModule);
+
+				assert.notOk(Box.Application.isStarted(nestedModule), 'Parent module should not be started');
+				assert.ok(Box.Application.isStarted(nestedModule.children[0]), 'Child module should be started');
+			});
 		});
 	});
 
@@ -465,12 +472,12 @@ describe('Box.Application', function() {
 	describe('on[event]()', function() {
 
 		leche.withData({
-			jquery: [Box.JQueryEvents],
-			native: [Box.NativeEvents]
-		}, function(events){
+			jquery: [Box.JQueryDOM],
+			native: [Box.NativeDOM]
+		}, function(dom){
 
 			beforeEach(function() {
-				Box.Events = events;
+				Box.DOM = dom;
 				Box.Application.init();
 
 				// add after init() to ensure we won't have errors due to missing
@@ -498,7 +505,7 @@ describe('Box.Application', function() {
 				// Without checking the existence of a parentNode and returning null, we would throw errors
 
 				// Scenario appears unique to jquery
-				if (Box.Events.type === 'jquery') {
+				if (Box.DOM.type === 'jquery') {
 					Box.Application.addModule('test', sandbox.stub().returns({
 						onclick: sandbox.mock().withArgs(sinon.match.any, null)
 					}));
@@ -700,46 +707,53 @@ describe('Box.Application', function() {
 
 
 	describe('getModuleConfig()', function() {
+		leche.withData({
+			jquery: [Box.JQueryDOM],
+			native: [Box.NativeDOM]
+		}, function(dom){
 
-		var moduleWithConfig;
+			var moduleWithConfig;
 
-		beforeEach(function() {
-			testModule = $('<div data-module="test"><span id="module-target"></span></div>')[0];
-			moduleWithConfig = $('<div data-module="test"><script type="text/x-config">{"name":"box"}</script></div>')[0];
+			beforeEach(function() {
+				Box.DOM = dom;
+				testModule = $('<div data-module="test"><span id="module-target"></span></div>')[0];
+				moduleWithConfig = $('<div data-module="test"><script type="text/x-config">{"name":"box"}</script></div>')[0];
 
-			$('#mocha-fixture').append(testModule, moduleWithConfig);
-		});
+				$('#mocha-fixture').append(testModule, moduleWithConfig);
+			});
 
-		it('should return null when the module has no configuration', function() {
-			Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
-			Box.Application.start(testModule);
+			it('should return null when the module has no configuration', function() {
+				Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
+				Box.Application.start(testModule);
 
-			var config = Box.Application.getModuleConfig(testModule);
-			assert.strictEqual(config, null, 'Configuration should be null.');
-		});
+				var config = Box.Application.getModuleConfig(testModule);
+				assert.strictEqual(config, null, 'Configuration should be null.');
+			});
 
-		it('should return an object when the module has configuration', function() {
-			Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
-			Box.Application.start(moduleWithConfig);
+			it('should return an object when the module has configuration', function() {
+				Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
+				Box.Application.start(moduleWithConfig);
 
-			var config = Box.Application.getModuleConfig(moduleWithConfig);
-			assert.deepEqual(config, { name: 'box' }, 'Configuration key name should be "box".');
-		});
+				var config = Box.Application.getModuleConfig(moduleWithConfig);
+				assert.deepEqual(config, { name: 'box' }, 'Configuration key name should be "box".');
+			});
 
-		it('should return config value when name specified', function() {
-			Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
-			Box.Application.start(moduleWithConfig);
+			it('should return config value when name specified', function() {
+				Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
+				Box.Application.start(moduleWithConfig);
 
-			var config = Box.Application.getModuleConfig(moduleWithConfig, 'name');
-			assert.equal(config, 'box', 'Configuration value should be returned');
-		});
+				var config = Box.Application.getModuleConfig(moduleWithConfig, 'name');
+				assert.equal(config, 'box', 'Configuration value should be returned');
+			});
 
-		it('should return null when config key does not exist', function() {
-			Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
-			Box.Application.start(moduleWithConfig);
+			it('should return null when config key does not exist', function() {
+				Box.Application.addModule('test', sandbox.mock().withArgs(sinon.match.any).returns({}));
+				Box.Application.start(moduleWithConfig);
 
-			var config = Box.Application.getModuleConfig(moduleWithConfig, 'abc');
-			assert.strictEqual(config, null, 'null should be returned');
+				var config = Box.Application.getModuleConfig(moduleWithConfig, 'abc');
+				assert.strictEqual(config, null, 'null should be returned');
+			});
+
 		});
 
 	});
