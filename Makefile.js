@@ -273,10 +273,6 @@ target.dist = function() {
 		mkdir(DIST_DIR);
 	}
 
-
-    // @NOTE (jdivock): current builds all 3 even though jquery and default are dupes
-    // Can just cp t3-jquery to t3, I honestly have no strong opinions here
-
     [{
         name: DIST_NATIVE_NAME,
         files: SRC_NATIVE_FILES,
