@@ -45,10 +45,10 @@ var NODE = 'node ',	// intentional extra space
 	JS_DIRS = getSourceDirectories(),
 
 	// Files
-	SRC_JQUERY_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/events-jquery.js', 'lib/context.js', 'lib/application.js'],
-	SRC_NATIVE_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/events-native.js', 'lib/context.js', 'lib/application.js'],
-	TESTING_JQUERY_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/events-jquery.js', 'lib/application-stub.js', 'lib/test-service-provider.js'],
-	TESTING_NATIVE_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/events-native.js', 'lib/application-stub.js', 'lib/test-service-provider.js'],
+	SRC_JQUERY_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/dom-jquery.js', 'lib/context.js', 'lib/application.js'],
+	SRC_NATIVE_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/dom-native.js', 'lib/context.js', 'lib/application.js'],
+	TESTING_JQUERY_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/dom-jquery.js', 'lib/application-stub.js', 'lib/test-service-provider.js'],
+	TESTING_NATIVE_FILES = ['lib/box.js', 'lib/event-target.js', 'lib/dom-native.js', 'lib/application-stub.js', 'lib/test-service-provider.js'],
 	JS_FILES = find(JS_DIRS).filter(fileType('js')).join(' '),
 	TEST_FILES = find('tests/').filter(fileType('js')).join(' ');
 
